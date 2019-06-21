@@ -15,14 +15,26 @@
 
 from setuptools import find_packages
 from setuptools import setup
+from setuptools.command.install import install
 from setuptools.dist import Distribution
+
+
+class InstallPlatlib(install):
+
+  def finalize_options(self):
+    install.finalize_options(self)
+    self.install_lib = self.install_platlib
 
 
 class BinaryDistribution(Distribution):
   """This class is needed in order to create OS specific wheels."""
 
+  def is_pure(self):
+    return False
+
   def has_ext_modules(self):
     return True
+
 
 # Get version from version module.
 with open('tensorflow_data_validation/version.py') as fp:
@@ -107,4 +119,5 @@ setup(
     keywords='tensorflow data validation tfx',
     url='https://www.tensorflow.org/tfx/data_validation',
     download_url='https://github.com/tensorflow/data-validation/tags',
-    requires=[])
+    requires=[],
+    cmdclass={'install': InstallPlatlib})
